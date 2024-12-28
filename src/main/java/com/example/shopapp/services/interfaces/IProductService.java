@@ -19,11 +19,15 @@ public interface IProductService {
 
     List<Product> getProductsByIds(List<Long> ids) ;
 
-    Page<Product> getAllProducts(String search, Long categoryId, PageRequest pageRequest);
+    Page<Product> getAllDeletedProducts(String search, Long categoryId, PageRequest pageRequest);
+
+    Page<Product> getAllActiveProducts(String search, Long categoryId, PageRequest pageRequest);
 
     Product updateProduct(long id, ProductDTO productDTO, String thumbnail) throws Exception;
 
-    void deleteProduct(long id);
+    void softDeleteProduct(long id);
+
+    void restoreProduct(long id);
 
     boolean existsByName(String name);
 

@@ -11,6 +11,7 @@ import com.example.shopapp.repositories.CategoryRepository;
 import com.example.shopapp.repositories.ProductImageRepository;
 import com.example.shopapp.repositories.ProductRepository;
 import com.example.shopapp.services.interfaces.IProductService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -59,8 +60,13 @@ public class ProductService implements IProductService {
 
 
     @Override
-    public Page<Product> getAllProducts(String search, Long categoryId, PageRequest pageRequest) {
-        return productRepository.searchProducts(search, categoryId, pageRequest);
+    public Page<Product> getAllDeletedProducts(String search, Long categoryId, PageRequest pageRequest) {
+        return productRepository.searchDeletedProducts(search, categoryId, pageRequest);
+    }
+
+    @Override
+    public Page<Product> getAllActiveProducts(String search, Long categoryId, PageRequest pageRequest) {
+        return productRepository.searchActiveProducts(search, categoryId, pageRequest);
     }
 
     @Override
@@ -87,10 +93,23 @@ public class ProductService implements IProductService {
 
     @Override
     @Transactional
-    public void deleteProduct(long id) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        productOptional.ifPresent(productRepository::delete);
+    public void softDeleteProduct(long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
+        product.setIsActive(false); // Đánh dấu sản phẩm đã bị xóa
+        productRepository.save(product);
+
+    }
+
+    @Override
+    @Transactional
+    public void restoreProduct(long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        product.setIsActive(true); // Khoi phuc sp bi xoa
+        productRepository.save(product);
     }
 
     @Override

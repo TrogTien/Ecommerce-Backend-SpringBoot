@@ -20,7 +20,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,8 +32,8 @@ public class ProductController {
     private final IProductImageService productImageService;
     private final ImageFileUtil imageFileUtil;
 
-    @GetMapping()
-    public ResponseEntity<?> getAllProducts(
+    @GetMapping("/deleted")
+    public ResponseEntity<?> getAllDeletedProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int limit,
             @RequestParam(defaultValue = "") String search,
@@ -44,7 +46,38 @@ public class ProductController {
                     limit,
                     Sort.by("createdAt").ascending()
             );
-            Page<Product> productPage = productService.getAllProducts(search, categoryId, pageRequest);
+            Page<Product> productPage = productService.getAllDeletedProducts(search, categoryId, pageRequest);
+            // tong so pages
+            int totalPage  = productPage.getTotalPages();
+            List<Product> products = productPage.getContent();
+
+            return ResponseEntity.ok(ProductListResponse.builder()
+                    .products(products)
+                    .totalPages(totalPage)
+                    .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getAllActiveProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int limit,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0", name = "category_id") Long categoryId
+    ) {
+
+        try {
+            PageRequest pageRequest = PageRequest.of(
+                    page,
+                    limit,
+                    Sort.by("createdAt").ascending()
+            );
+            Page<Product> productPage = productService.getAllActiveProducts(search, categoryId, pageRequest);
             // tong so pages
             int totalPage  = productPage.getTotalPages();
             List<Product> products = productPage.getContent();
@@ -145,10 +178,25 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProductById(@PathVariable("id") Long productId) {
+    public ResponseEntity<?> deleteProductById(@PathVariable("id") Long productId) {
         try {
-            productService.deleteProduct(productId);
-            return ResponseEntity.ok(String.format("Product with id %s was deleted", productId));
+            productService.softDeleteProduct(productId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", String.format("Product with id %s was deleted", productId));
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<?> restoreProduct(@PathVariable("id") Long productId) {
+        try {
+            productService.restoreProduct(productId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", String.format("Product with id %s was restored", productId));
+            return ResponseEntity.ok(response);
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

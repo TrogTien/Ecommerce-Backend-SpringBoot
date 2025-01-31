@@ -39,7 +39,7 @@ public class Order {
     private String note;
 
     @Column(name = "order_date", length = 100)
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
 
     @Column( length = 100)
     private String status;
@@ -54,7 +54,7 @@ public class Order {
     private String shippingAddress;
 
     @Column(name = "shipping_date", length = 100)
-    private LocalDateTime shippingDate;
+    private LocalDate shippingDate;
 
     @Column(name = "tracking_number", length = 100)
     private String trackingNumber;
@@ -64,4 +64,13 @@ public class Order {
 
     @Column(length = 100)
     private Boolean active;
+
+    @Column(name = "tax", length = 100)
+    private Float tax;
+
+    @Column(name = "shipping_cost", length = 100)
+    private Float shippingCost;
+
+    @Column(name = "sub_total", length = 100)
+    private Float subTotal;
 }

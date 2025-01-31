@@ -4,6 +4,7 @@ import com.example.shopapp.models.Order;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -29,7 +30,7 @@ public class OrderResponse {
     private String note;
 
     @JsonProperty("order_date")
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
 
     private String status;
 
@@ -43,7 +44,7 @@ public class OrderResponse {
     private String shippingAddress;
 
     @JsonProperty("shipping_date")
-    private LocalDateTime shippingDate;
+    private LocalDate shippingDate;
 
     @JsonProperty("tracking_number")
     private String trackingNumber;
@@ -52,6 +53,15 @@ public class OrderResponse {
     private String paymentMethod;
 
     private Boolean active;
+
+    @JsonProperty("tax")
+    private Float tax;
+
+    @JsonProperty("shipping_cost")
+    private Float shippingCost;
+
+    @JsonProperty("sub_total")
+    private Float subTotal;
 
     public static OrderResponse fromOrder(Order order) {
         return OrderResponse.builder()
@@ -71,6 +81,9 @@ public class OrderResponse {
                 .trackingNumber(order.getTrackingNumber())
                 .paymentMethod(order.getPaymentMethod())
                 .active(order.getActive())
+                .tax(order.getTax())
+                .shippingCost(order.getShippingCost())
+                .subTotal(order.getSubTotal())
                 .build();
     }
 

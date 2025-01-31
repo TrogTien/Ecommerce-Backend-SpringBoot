@@ -29,6 +29,27 @@ public class OrderController {
     private final IOrderService orderService;
     private final IUserService userService;
 
+    // GET All
+    @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getOrdersByKeyword(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "") String keyword
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
+
+        Page<OrderResponse> orderResponsePage = orderService.getOrdersByKeyword(keyword, pageRequest).map(OrderResponse::fromOrder);
+        int totalPages = orderResponsePage.getTotalPages();
+
+        return ResponseEntity.ok(
+                OrderListResponse.builder()
+                        .totalPages(totalPages)
+                        .orders(orderResponsePage.getContent())
+                        .build()
+        );
+    }
+
     // POST: localhost:8080/api/v1/orders
     @PostMapping("")
     public ResponseEntity<?> addOrder(
@@ -118,24 +139,6 @@ public class OrderController {
         return ResponseEntity.ok("Order deleted successfully");
     }
 
-    @GetMapping("/get-orders-by-keyword")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getOrdersByKeyword(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(defaultValue = "") String keyword
-    ) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
 
-        Page<OrderResponse> orderResponsePage = orderService.getOrdersByKeyword(keyword, pageRequest).map(OrderResponse::fromOrder);
-        int totalPages = orderResponsePage.getTotalPages();
-
-        return ResponseEntity.ok(
-                OrderListResponse.builder()
-                        .totalPages(totalPages)
-                        .orders(orderResponsePage.getContent())
-                        .build()
-        );
-    }
 
 }

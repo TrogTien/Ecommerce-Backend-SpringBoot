@@ -46,18 +46,17 @@ public class OrderService implements IOrderService {
         Order order = new Order();
         modelMapper.map(orderDTO, order);
         order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
+        order.setOrderDate(LocalDate.now());
         order.setStatus(OrderStatus.PENDING);
         order.setActive(true);
         // Check Shipping Date
-        LocalDateTime shippingDate = orderDTO.getShippingDate() == null
-                ? LocalDateTime.now()
+        LocalDate shippingDate = orderDTO.getShippingDate() == null
+                ? LocalDate.now()
                 : orderDTO.getShippingDate();
-        if (shippingDate.isBefore(LocalDateTime.now())) {
+        if (shippingDate.isBefore(LocalDate.now())) {
             throw new DataNotFoundException("Shipping Date must be at least today");
         }
         order.setShippingDate(shippingDate);
-        order.setTotalMoney(orderDTO.getTotalMoney());
 
         orderRepository.save(order);
 

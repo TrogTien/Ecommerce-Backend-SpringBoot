@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(String name);
-
+    void deleteByCategoryId(Long categoryId);
 
     @Query("SELECT p FROM Product p WHERE (:categoryId IS NULL OR :categoryId = 0 OR p.category.id  = :categoryId)" +
             "AND (:search IS NULL OR :search = '' OR p.name LIKE %:search% OR p.description LIKE %:search%)" +

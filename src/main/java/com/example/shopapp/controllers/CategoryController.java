@@ -34,6 +34,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult bindingResult
     ) {
+        // check DTO Valid
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -42,36 +43,46 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(String.valueOf(errors));
         }
 
-        categoryService.createCategory(categoryDTO);
-        Locale locale = LocaleContextHolder.getLocale();
-        return ResponseEntity.ok(Collections.singletonMap(
-                "message",
-                messageSource.getMessage("category.insert.insert_successfully", null, locale)
-        ));
+        Category newCategory = categoryService.createCategory(categoryDTO);
+        return ResponseEntity.ok(newCategory);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(
             @PathVariable Long id,
-            @RequestBody @Valid CategoryDTO categoryDTO
+            @RequestBody @Valid CategoryDTO categoryDTO,
+            BindingResult bindingResult
+
 
     ) {
-        categoryService.updateCategory(categoryDTO, id);
-        Locale locale = LocaleContextHolder.getLocale();
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(String.valueOf(errors));
+        }
 
-        return ResponseEntity.ok(Collections.singletonMap(
-                "message",
-                messageSource.getMessage("category.update.update_successfully", null, locale)
-        ));
+        Category updatedCategory = categoryService.updateCategory(categoryDTO, id);
+
+        return ResponseEntity.ok(updatedCategory);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        Locale locale = LocaleContextHolder.getLocale();
-        return ResponseEntity.ok(Collections.singletonMap(
-                "message",
-                messageSource.getMessage("category.delete.delete_successfully", null, locale)
-        ));
+    public ResponseEntity<?> deleteCategory(
+            @PathVariable Long id
+    ) {
+        try {
+
+            categoryService.deleteCategory(id);
+            Locale locale = LocaleContextHolder.getLocale();
+            return ResponseEntity.ok(Collections.singletonMap(
+                    "message",
+                    messageSource.getMessage("category.delete.delete_successfully", null, locale)
+            ));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

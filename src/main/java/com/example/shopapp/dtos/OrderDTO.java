@@ -42,11 +42,19 @@ public class OrderDTO {
     private String shippingAddress;
 
     @JsonProperty("shipping_date")
-    private LocalDateTime shippingDate;
+    private LocalDate shippingDate;
 
     @JsonProperty("payment_method")
     private String paymentMethod;
 
     @JsonProperty("cart_items")
     private List<CartItemDTO> cartItems;
+
+    private Float tax;
+
+    @JsonProperty("shipping_cost")
+    private Float shippingCost;
+
+    @JsonProperty("sub_total")
+    private Float subTotal;
 }

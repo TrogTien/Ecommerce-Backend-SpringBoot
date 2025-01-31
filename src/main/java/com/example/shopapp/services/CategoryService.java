@@ -3,17 +3,20 @@ package com.example.shopapp.services;
 import com.example.shopapp.dtos.CategoryDTO;
 import com.example.shopapp.models.Category;
 import com.example.shopapp.repositories.CategoryRepository;
+import com.example.shopapp.repositories.ProductRepository;
 import com.example.shopapp.services.interfaces.ICategoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -47,8 +50,12 @@ public class CategoryService implements ICategoryService {
 
     @Override
     @Transactional
-    public void deleteCategory(long id) {
+    public void deleteCategory(long categoryId) {
         // xoa cung
-        categoryRepository.deleteById(id);
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        if (category.isPresent()) {
+            productRepository.deleteByCategoryId(categoryId);
+            categoryRepository.deleteById(categoryId);
+        }
     }
 }
